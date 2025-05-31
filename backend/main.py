@@ -18,6 +18,14 @@ app: FastAPI = FastAPI(
 
 app.include_router(v1_router)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=Settings.frontend_url,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 async def aget_application(scope, receive, send):
     await app(scope, receive, send)
