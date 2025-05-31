@@ -7,7 +7,7 @@ __all__ = ["app", "aget_application"]
 
 
 app: FastAPI = FastAPI(
-    title=f"cognitive-lens-{Settings.environment.value}",
+    title=f"cognitive-lens",
     version="0.0.1",
 )
 
