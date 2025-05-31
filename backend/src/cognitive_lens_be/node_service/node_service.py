@@ -1,3 +1,5 @@
+from typing import Any
+
 from litellm import acompletion
 
 from cognitive_lens_be.model.conversation_message import ConversationMessage
@@ -13,7 +15,7 @@ class NodeService:
             self,
             conversation: list[ConversationMessage],
             system_prompt: str | None,
-            output_schema: str | None,
+            output_schema: dict | None,
     ) -> ResultMessages:
         """Run the agent with the provided prompt."""
         executor_input_messages = [{"content": system_prompt, "role": "system"}] if system_prompt else []
