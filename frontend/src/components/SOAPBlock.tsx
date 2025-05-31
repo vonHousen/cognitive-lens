@@ -1,4 +1,4 @@
-import styles from "@/styles/SOAP.module.css";
+import styles from "@/styles/SOAPBlock.module.css";
 
 export interface SOAPData {
   patientInfo: string; // General patient information
