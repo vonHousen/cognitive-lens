@@ -1,9 +1,11 @@
 import Head from "next/head";
 import { Geist, Geist_Mono } from "next/font/google";
 import styles from "@/styles/Home.module.css";
-import TextBox from "@/components/TextBox";
 import Block from "@/components/Block";
 import ApiControls from "@/components/ApiControls";
+import ConversationBlock from "@/components/ConversationBlock";
+import TextBox from "@/components/TextBox";
+import { sampleMessages } from "@/utils/constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,9 +37,7 @@ export default function Home() {
           </Block>
 
           <Block>
-            <TextBox text="dupa" />
-            <TextBox text="dupa" />
-            <TextBox text="dupa" />
+            <ConversationBlock messages={sampleMessages} />
           </Block>
 
           <Block>
