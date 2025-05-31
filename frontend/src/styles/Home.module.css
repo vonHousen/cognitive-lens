@@ -46,7 +46,6 @@
     transition: color 0.15s ease, border-color 0.15s ease;
     width: 100%;
     max-width: 500px;
-    gap: 1rem;
 }
 
 .button {

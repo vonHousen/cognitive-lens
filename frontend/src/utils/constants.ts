@@ -27,11 +27,6 @@ export const sampleMessages: Message[] = [
   }
 ];
 
-export interface StateContent {
-  type: 'soap' | 'text';
-  content: SOAPData | string;
-}
-
 export interface SOAPData {
   patientInfo: string; // General patient information
   S: string; // Subjective
@@ -40,23 +35,16 @@ export interface SOAPData {
   P: string; // Plan
 }
 
-export const stateContents: StateContent[] = [
-  {
-    type: 'soap',
-    content: {
-      patientInfo: "Patient: John Doe, Age: 32, Session: Initial Consultation, Date: March 15, 2024",
-      S: "User reports difficulty understanding the application workflow and requests guidance on available features",
-      O: "Application is running normally, all API endpoints are responsive, user has successfully loaded the interface",
-      A: "User needs orientation and feature explanation to maximize application utilization and understanding",
-      P: "Provide comprehensive walkthrough of features, demonstrate key functionalities, and establish clear usage patterns"
-    }
-  },
-  {
-    type: 'text',
-    content: "Explore powerful features including real-time conversation, API monitoring, and intelligent responses"
-  },
-  {
-    type: 'text', 
-    content: "Get started with your journey today - Experience seamless integration between frontend and backend"
-  }
+// Keep these for the simplified structure:
+export const soapContent: SOAPData = {
+  patientInfo: "Patient: John Doe, Age: 32, Session: Initial Consultation, Date: March 15, 2024",
+  S: "User reports difficulty understanding the application workflow and requests guidance on available features",
+  O: "Application is running normally, all API endpoints are responsive, user has successfully loaded the interface",
+  A: "User needs orientation and feature explanation to maximize application utilization and understanding",
+  P: "Provide comprehensive walkthrough of features, demonstrate key functionalities, and establish clear usage patterns"
+};
+
+export const textContents: string[] = [
+  "Explore powerful features including real-time conversation, API monitoring, and intelligent responses",
+  "Get started with your journey today - Experience seamless integration between frontend and backend"
 ];

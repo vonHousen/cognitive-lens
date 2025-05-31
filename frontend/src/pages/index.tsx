@@ -3,10 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { useState } from "react";
 import styles from "@/styles/Home.module.css";
 import Block from "@/components/Block";
-import ApiControls from "@/components/ApiControls";
 import ConversationBlock from "@/components/ConversationBlock";
-import StateBlock from "@/components/StateBlock";
-import { sampleMessages, stateContents, Message } from "@/utils/constants";
+import SOAPBlock from "@/components/SOAPBlock";
+import TextContainer from "@/components/TextContainer";
+import { sampleMessages, soapContent, textContents, Message } from "@/utils/constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +43,7 @@ export default function Home() {
       >
         <main className={styles.main}>
           <Block>
-            <StateBlock contents={stateContents} />
+            <SOAPBlock data={soapContent} />
           </Block>
 
           <Block>
@@ -54,7 +54,7 @@ export default function Home() {
           </Block>
 
           <Block>
-            <ApiControls />
+            <TextContainer textContents={textContents} />
           </Block>
         </main>
       </div>
