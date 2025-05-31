@@ -1,5 +1,6 @@
 from litellm import acompletion
 
+from cognitive_lens_be.model.conversation_message import ConversationMessage
 from cognitive_lens_be.model.message import Message, AgentRole
 from cognitive_lens_be.model.result_messages import ResultMessages
 
@@ -8,10 +9,15 @@ class NodeService:
     """All actions related to running the node."""
 
     # TODO add supervisor
-    async def run(self, prompt: str, system_prompt: str | None) -> ResultMessages:
+    async def run(
+            self,
+            conversation: list[ConversationMessage],
+            system_prompt: str | None,
+            output_schema: str | None,
+    ) -> ResultMessages:
         """Run the agent with the provided prompt."""
         executor_input_messages = [{"content": system_prompt, "role": "system"}] if system_prompt else []
-        executor_input_messages.append({"content": prompt, "role": "user"})
+        executor_input_messages.extend([msg.model_dump() for msg in conversation])
 
         executor_initial_response = await acompletion(
             model="gpt-4.1-mini",

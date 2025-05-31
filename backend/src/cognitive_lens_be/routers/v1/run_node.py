@@ -21,8 +21,9 @@ async def run_node(node: Node) -> ExecutionResult:
 
     try:
         result = await service.run(
-            prompt=node.prompt,
+            conversation=node.conversation,
             system_prompt=node.system_prompt,
+            output_schema=node.output_schema,
         )
     except:
         LOGGER.exception("Unexpected error while executing node.")
