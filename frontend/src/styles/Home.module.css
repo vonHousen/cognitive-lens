@@ -1,0 +1,98 @@
+.page {
+    --gray-rgb: 0, 0, 0;
+    --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
+    --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
+
+    --button-primary-hover: #383838;
+    --button-secondary-hover: #f2f2f2;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+    .page {
+        --gray-rgb: 255, 255, 255;
+        --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
+        --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
+
+        --button-primary-hover: #ccc;
+        --button-secondary-hover: #1a1a1a;
+    }
+
+    .logo {
+        filter: invert();
+    }
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    grid-row-start: 2;
+    min-height: 100vh;
+    padding: 4rem 0;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    margin: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid #eaeaea;
+    border-radius: 10px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    width: 100%;
+    max-width: 500px;
+}
+
+.button {
+    background-color: #0070f3;
+    color: white;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.refreshButton {
+    background-color: #28a745;
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.8rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.refreshButton:hover {
+    background-color: #218838;
+}
+
+.response {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+}
+
+.status {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
