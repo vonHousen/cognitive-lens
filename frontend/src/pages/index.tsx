@@ -4,8 +4,8 @@ import styles from "@/styles/Home.module.css";
 import Block from "@/components/Block";
 import ApiControls from "@/components/ApiControls";
 import ConversationBlock from "@/components/ConversationBlock";
-import TextBox from "@/components/TextBox";
-import { sampleMessages } from "@/utils/constants";
+import StateBlock from "@/components/StateBlock";
+import { sampleMessages, stateContents } from "@/utils/constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
+
   return (
     <>
       <Head>
@@ -31,9 +32,7 @@ export default function Home() {
       >
         <main className={styles.main}>
           <Block>
-            <TextBox text="First Card - Welcome to our application!" />
-            <TextBox text="Second Card - Explore the features and functionality." />
-            <TextBox text="Third Card - Get started with your journey today." />
+            <StateBlock contents={stateContents} />
           </Block>
 
           <Block>

@@ -25,4 +25,12 @@ export const sampleMessages: Message[] = [
     content: 'Currently, the application includes:\n\n• API health monitoring\n• Basic connectivity testing\n• This conversation interface\n• Modular component architecture\n\nYou can expand it with more features as needed!',
     timestamp: new Date(Date.now() - 120000) // 2 minutes ago
   }
-]; 
+];
+
+export const stateContents: string[] = [
+  "Welcome to our cognitive lens application - Your gateway to advanced AI interactions",
+  "Explore powerful features including real-time conversation, API monitoring, and intelligent responses", 
+  "Get started with your journey today - Experience seamless integration between frontend and backend",
+  "Advanced analytics and monitoring tools help you track application performance and user engagement",
+  "Discover the full potential of modern web applications with our comprehensive feature set and intuitive design"
+];
