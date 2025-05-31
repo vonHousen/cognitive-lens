@@ -27,10 +27,36 @@ export const sampleMessages: Message[] = [
   }
 ];
 
-export const stateContents: string[] = [
-  "Welcome to our cognitive lens application - Your gateway to advanced AI interactions",
-  "Explore powerful features including real-time conversation, API monitoring, and intelligent responses", 
-  "Get started with your journey today - Experience seamless integration between frontend and backend",
-  "Advanced analytics and monitoring tools help you track application performance and user engagement",
-  "Discover the full potential of modern web applications with our comprehensive feature set and intuitive design"
+export interface StateContent {
+  type: 'soap' | 'text';
+  content: SOAPData | string;
+}
+
+export interface SOAPData {
+  patientInfo: string; // General patient information
+  S: string; // Subjective
+  O: string; // Objective
+  A: string; // Assessment
+  P: string; // Plan
+}
+
+export const stateContents: StateContent[] = [
+  {
+    type: 'soap',
+    content: {
+      patientInfo: "Patient: John Doe, Age: 32, Session: Initial Consultation, Date: March 15, 2024",
+      S: "User reports difficulty understanding the application workflow and requests guidance on available features",
+      O: "Application is running normally, all API endpoints are responsive, user has successfully loaded the interface",
+      A: "User needs orientation and feature explanation to maximize application utilization and understanding",
+      P: "Provide comprehensive walkthrough of features, demonstrate key functionalities, and establish clear usage patterns"
+    }
+  },
+  {
+    type: 'text',
+    content: "Explore powerful features including real-time conversation, API monitoring, and intelligent responses"
+  },
+  {
+    type: 'text', 
+    content: "Get started with your journey today - Experience seamless integration between frontend and backend"
+  }
 ];
