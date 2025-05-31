@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 
-from .settings import Settings
 from cognitive_lens_be.routers.v1.run_node import router as v1_router
 
 __all__ = ["app", "aget_application"]
