@@ -11,35 +11,10 @@ from starlette.middleware.sessions import SessionMiddleware
 __all__ = ["app", "aget_application"]
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    is_deployed = Settings.environment == EnvironmentEnum.PROD or Settings.environment == EnvironmentEnum.DEV
-    if is_deployed:
-        Logger.info("Initializing elastic handler")
-    else:
-        Logger.info(f"Environment: {Settings.environment.value}, not initializing elastic handler")
-
-    yield
-
-
-frontend_urls = [Settings.frontend_url]
-if Settings.environment == EnvironmentEnum.LOCALHOST:
-    frontend_urls.append(Settings.frontend_url.replace("frontend", "localhost"))
-
 app: FastAPI = FastAPI(
-    title=f"Next-Station-Hallucination-H25-{Settings.environment.value}",
-    lifespan=lifespan,
+    title=f"cognitive-lens-{Settings.environment.value}",
     version="0.0.1",
 )
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=frontend_urls,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-app.add_middleware(SessionMiddleware, secret_key=Settings.session_secret)
 
 app.include_router(v1_router)
 
