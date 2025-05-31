@@ -3,7 +3,9 @@ from functools import lru_cache
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from src.enums.app import EnvironmentEnum
+
+from cognitive_lens_be.enums.app import EnvironmentEnum
+
 
 __all__ = ["Settings"]
 
