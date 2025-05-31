@@ -16,6 +16,7 @@ class BaseSettingsConfig(BaseSettings):
     environment: EnvironmentEnum
     frontend_url: str
     session_secret: str
+    openai_api_key: str
 
 
 class SettingsType(type):
