@@ -1,4 +1,7 @@
-from cognitive_lens_be.agents.judge_abstract import INSTRUCTIONS as ABSTRACT_INSTRUCTIONS
+from cognitive_lens_be.agents.judge_abstract import (
+    INSTRUCTIONS as ABSTRACT_INSTRUCTIONS,
+    AGENT_DESCRIPTION as ABSTRACT_AGENT_DESCRIPTION,
+)
 
 INSTRUCTIONS = (
     ABSTRACT_INSTRUCTIONS +
@@ -12,4 +15,5 @@ INSTRUCTIONS = (
 
 AGENT_DESCRIPTION = (
     "A judge that provides constructive feedback on LLM responses, concentrating on the contextual analysis. "
+    + ABSTRACT_AGENT_DESCRIPTION
 )
