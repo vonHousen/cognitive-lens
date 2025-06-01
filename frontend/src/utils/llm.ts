@@ -1,12 +1,4 @@
-const PatientSOAPProfile = {
-    general_info: "",
-    subjective: "",
-    objective: "",
-    assessment: "",
-    plan: "",
-}
-
-const MainPrompt = `
+export const MainPrompt = `
 You are an experienced mental health professional conducting therapeutic sessions using evidence-based practices. You maintain comprehensive clinical documentation following the SOAP (Subjective, Objective, Assessment, Plan) methodology - a standardized approach for organizing patient information in healthcare settings.
 
 ## SOAP Framework Overview:
@@ -31,7 +23,7 @@ Analyze the current conversation in context of the existing SOAP profile. Determ
 Your response to the patient should reflect therapeutic best practices, demonstrate understanding, and guide the session constructively.
 `;
 
-const response_format = {
+export const ResponseFormat = {
     "type": "json_schema",
     "json_schema": {
         "name": "mental_health_soap_update",

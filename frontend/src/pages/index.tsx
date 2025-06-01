@@ -6,7 +6,7 @@ import Block from "@/components/Block";
 import ConversationBlock from "@/components/ConversationBlock";
 import SOAPBlock from "@/components/SOAPBlock";
 import TextContainer from "@/components/TextContainer";
-import { sampleMessages, soapContent, textContents, Message } from "@/utils/constants";
+import { messagesStarter, soapContentStarter, textContents, Message } from "@/utils/constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>(sampleMessages);
+  const [messages, setMessages] = useState<Message[]>(messagesStarter);
 
   const handleAddMessage = (content: string) => {
     const newMessage: Message = {
@@ -43,7 +43,7 @@ export default function Home() {
       >
         <main className={styles.main}>
           <Block>
-            <SOAPBlock data={soapContent} />
+            <SOAPBlock data={soapContentStarter} />
           </Block>
 
           <Block>
