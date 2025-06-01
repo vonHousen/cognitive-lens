@@ -6,9 +6,8 @@ INSTRUCTIONS = (
     "feedback. "
 )
 AGENT_DESCRIPTION = (
-    "Provide it with all the necessary context to perform evaluation effectively. "
-    "To make judging work, you need to provide it with the task that need to be judged, its concise description, "
-    "and the executor's response. "
+    "Provide it with (1) the task description the executor agent was assigned with; (2) the executor's response; "
+    "(3) all the necessary context to perform evaluation effectively. "
 )
 
 class JudgeResponse(BaseModel):
