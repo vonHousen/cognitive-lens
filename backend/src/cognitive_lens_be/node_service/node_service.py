@@ -1,45 +1,90 @@
-from typing import Any
-
 import litellm
 import httpx
 from litellm import acompletion, BadRequestError
+from agents import (
+    Agent,
+    Runner,
+    trace,
+)
 
-from cognitive_lens_be.model.conversation_message import ConversationMessage
+from cognitive_lens_be.model.conversation_message import ConversationMessage, ConversationRole
 from cognitive_lens_be.model.message import Message, AgentRole
 from cognitive_lens_be.model.result_messages import ResultMessages
 from cognitive_lens_be.utils.logger import LOGGER
+from cognitive_lens_be.agents.supervising_agent import (
+    INSTRUCTIONS as SUPERVISING_AGENT_INSTRUCTIONS,
+    SupervisingAgentResponse,
+    MAX_TURNS
+)
 
 
 class NodeService:
     """All actions related to running the node."""
 
-    def __init__(self):
-        litellm.aclient_session = httpx.AsyncClient(verify=False)
+    _supervising_agent: Agent
+    _feedback_max_rounds: int
 
-    async def run(
+    def __init__(self):
+        litellm.aclient_session = httpx.AsyncClient(verify=False)   # TODO hacks to make it work
+        self._supervising_agent = Agent(
+            name="supervising_agent",
+            instructions=SUPERVISING_AGENT_INSTRUCTIONS,
+            model="gpt-4.1-mini",
+            output_type=SupervisingAgentResponse,
+        )
+        self._feedback_max_rounds = 3
+
+    async def get_response(
             self,
             conversation: list[ConversationMessage],
             system_prompt: str | None,
             output_schema: dict | None,
     ) -> ResultMessages:
         """Run the agent with the provided prompt."""
-        executor_input_messages = [{"content": system_prompt, "role": "system"}] if system_prompt else []
+        feedback_rounds = 0
+        thinking_process = []
+        executor_input_messages = [{
+            "content": system_prompt, "role": ConversationRole.SYSTEM
+        }] if system_prompt else []
         executor_input_messages.extend([msg.model_dump() for msg in conversation])
 
-        try:
-            executor_initial_response = await acompletion(
-                model="gpt-4.1-mini",
-                messages=executor_input_messages,
-                response_format=output_schema or None,
-            )
-        except BadRequestError:
-            LOGGER.exception("Error while LLM requesting.")
-            raise
+        with trace("executor-evaluation"):
+            while feedback_rounds < self._feedback_max_rounds:
+                try:
+                    executor_initial_response = await acompletion(
+                        model="gpt-4.1-mini",
+                        messages=executor_input_messages,
+                        response_format=output_schema or None,
+                    )
+                except BadRequestError:
+                    LOGGER.exception("Error while LLM requesting.")
+                    raise
 
-        executor_msg = executor_initial_response.choices[0].message.content
+                executor_msg = executor_initial_response.choices[0].message.content
+                LOGGER.info(f"Executor response: '{executor_msg}'.")
 
-        # TODO add feedback loop
+                conversation_history = executor_input_messages.copy()
+                conversation_history.append({"content": executor_msg, "role": ConversationRole.ASSISTANT})
+                thinking_process.append({"content": executor_msg, "role": AgentRole.EXECUTOR})
+
+                supervision_result = await Runner.run(
+                    self._supervising_agent,
+                    input=conversation_history,
+                    max_turns=MAX_TURNS,
+                )
+                supervisor_feedback: SupervisingAgentResponse = supervision_result.final_output
+                LOGGER.info(f"Supervising agent feedback: '{supervisor_feedback.model_dump()}'.")
+
+                feedback_rounds += 1
+                thinking_process.append(Message(content=supervisor_feedback.feedback, role=AgentRole.SUPERVISOR))
+                executor_input_messages.append(
+                    {"content": supervisor_feedback.feedback, "role": ConversationRole.SYSTEM}
+                )
+
+                if supervisor_feedback.is_executor_response_valid:
+                    break
+
         return ResultMessages(
             output_message=Message(content=executor_msg, role=AgentRole.EXECUTOR),
-            thinking_process=[],
+            thinking_process=thinking_process,
         )

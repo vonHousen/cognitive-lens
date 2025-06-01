@@ -20,7 +20,7 @@ async def run_node(node: Node) -> ExecutionResult:
     service = NodeService()
 
     try:
-        result = await service.run(
+        result = await service.get_response(
             conversation=node.conversation,
             system_prompt=node.system_prompt,
             output_schema=node.output_schema,
