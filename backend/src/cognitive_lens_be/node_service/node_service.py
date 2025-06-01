@@ -15,6 +15,7 @@ from cognitive_lens_be.agents.supervising_agent import (
     SupervisingAgentResponse,
     MAX_TURNS
 )
+from cognitive_lens_be.agents.judge_abstract import JudgeResponse
 from cognitive_lens_be.agents.judge_contextual_analyzer import (
     INSTRUCTIONS as JUDGE_CONTEXTUAL_ANALYZER_INSTRUCTIONS,
     AGENT_DESCRIPTION as JUDGE_CONTEXTUAL_ANALYZER_DESCRIPTION,
@@ -42,16 +43,19 @@ class NodeService:
             name="judge_contextual_analyzer",
             instructions=JUDGE_CONTEXTUAL_ANALYZER_INSTRUCTIONS,
             model="gpt-4.1-mini",
+            output_type=JudgeResponse,
         )
         judge_creative_thinker = Agent(
             name="judge_creative_thinker",
             instructions=JUDGE_CREATIVE_THINKER_INSTRUCTIONS,
             model="gpt-4.1-mini",
+            output_type=JudgeResponse,
         )
         judge_detail_oriented = Agent(
             name="judge_detail_oriented",
             instructions=JUDGE_DETAIL_ORIENTED_INSTRUCTIONS,
             model="gpt-4.1-mini",
+            output_type=JudgeResponse,
         )
 
         self._supervising_agent = Agent(
