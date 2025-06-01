@@ -8,7 +8,7 @@ INSTRUCTIONS = (
     "and mark that the response is not valid."
     "REMEMBER! You are not allowed to introduce any feedback by yourself."
 )
-MAX_TURNS = 5
+MAX_TURNS = 10
 
 class SupervisingAgentResponse(BaseModel):
     is_executor_response_valid: bool

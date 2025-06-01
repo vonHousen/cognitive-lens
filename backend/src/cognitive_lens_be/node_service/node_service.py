@@ -1,7 +1,10 @@
+import json
+
 import litellm
 import httpx
 from litellm import acompletion, BadRequestError
 from agents import Agent, Runner, trace
+from openai.types.responses import ResponseOutputItemDoneEvent, ResponseFunctionToolCall, ResponseTextDeltaEvent
 
 from cognitive_lens_be.model.conversation_message import ConversationMessage, ConversationRole
 from cognitive_lens_be.model.message import Message, AgentRole
@@ -106,12 +109,35 @@ class NodeService:
                 conversation_history.append({"content": executor_msg, "role": ConversationRole.ASSISTANT})
                 thinking_process.append({"content": executor_msg, "role": AgentRole.EXECUTOR})
 
-                supervision_result = await Runner.run(
+                supervision_result_stream = Runner.run_streamed(
                     self._supervising_agent,
                     input=conversation_history,
                     max_turns=MAX_TURNS,
                 )
-                supervisor_feedback: SupervisingAgentResponse = supervision_result.final_output
+                supervision_result = ""
+                async for event in supervision_result_stream.stream_events():
+                    if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
+                        supervision_result += event.data.delta
+                    elif event.type == "agent_updated_stream_event":
+                        LOGGER.info(f"Using Agent: {event.new_agent.name}.")
+                    elif (
+                        event.type == "raw_response_event"
+                        and isinstance(event.data, ResponseOutputItemDoneEvent)
+                        and isinstance(event.data.item, ResponseFunctionToolCall)
+                    ):
+                        agent_input = json.loads(event.data.item.arguments).get("input", "")
+                        # Truncate agent_input if it's too long and add italic styling
+                        # truncated_input = agent_input[:50] + "..." if len(agent_input) > 50 else agent_input
+                        truncated_input = agent_input
+                        LOGGER.debug(
+                            f"Using Tool '{event.data.item.name}': '{truncated_input}'."
+                        )
+                    elif event.type == "run_item_stream_event" and event.item.type == "tool_call_output_item":
+                        judge_msg = event.item.output
+                        LOGGER.debug(f"Tool output: {judge_msg}")
+                        thinking_process.append({"content": judge_msg, "role": AgentRole.JUDGE})
+
+                supervisor_feedback = SupervisingAgentResponse.model_validate_json(supervision_result)
                 LOGGER.info(f"Supervising agent feedback: '{supervisor_feedback.model_dump()}'.")
 
                 feedback_rounds += 1
