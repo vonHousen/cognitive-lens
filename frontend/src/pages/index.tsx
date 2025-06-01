@@ -7,6 +7,8 @@ import ConversationBlock from "@/components/ConversationBlock";
 import SOAPBlock from "@/components/SOAPBlock";
 import TextContainer from "@/components/TextContainer";
 import { messagesStarter, soapContentStarter, textContents, Message } from "@/utils/constants";
+import { ResponseFormat } from "@/utils/llm";
+import { runNode } from "@/utils/api";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,14 +22,50 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>(messagesStarter);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddMessage = (content: string) => {
-    const newMessage: Message = {
-      role: 'user',
-      content,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, newMessage]);
+  const handleAddMessage = async (fullConversation: Message[]) => {
+    try {
+      setIsLoading(true);
+      
+      // Extract just the user/assistant messages (excluding system) for state
+      const userAssistantMessages = fullConversation.filter(msg => msg.role !== 'system');
+      setMessages(userAssistantMessages);
+
+      // Prepare conversation for backend (convert Message[] to ConversationMessage[])
+      const backendConversation = fullConversation.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      // Call backend API
+      const response = await runNode({
+        conversation: backendConversation,
+        output_schema: ResponseFormat
+      });
+
+      if (response.success && response.messages?.output_message) {
+        // Add assistant response to messages
+        const assistantMessage: Message = {
+          role: 'assistant',
+          content: response.messages.output_message.content,
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      console.error('Error calling backend:', error);
+      // Optionally add an error message to the conversation
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -51,6 +89,11 @@ export default function Home() {
               messages={messages} 
               onAddMessage={handleAddMessage}
             />
+            {isLoading && (
+              <div style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>
+                Assistant is thinking...
+              </div>
+            )}
           </Block>
 
           <Block>

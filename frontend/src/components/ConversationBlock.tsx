@@ -1,36 +1,59 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "@/styles/Conversation.module.css";
 import { Message } from "@/utils/constants";
+import { MainPrompt } from "@/utils/llm";
 
 interface ConversationBlockProps {
   messages: Message[];
-  onAddMessage?: (content: string) => void;
+  onAddMessage?: (fullConversation: Message[]) => void;
 }
 
 const ConversationBlock = ({ messages, onAddMessage }: ConversationBlockProps) => {
   const [inputValue, setInputValue] = useState("");
   const conversationRef = useRef<HTMLDivElement>(null);
 
+  // Create complete conversation including system prompt
+  const fullConversation = [
+    { role: 'system' as const, content: MainPrompt },
+    ...messages
+  ];
+
+  // Filter out system messages for display
+  const displayMessages = messages.filter(message => message.role !== 'system');
+
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (conversationRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = conversationRef.current;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100; // Within 100px of bottom
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
       
-      // Auto-scroll if user is already near the bottom or if this is a new message
-      if (isNearBottom || messages.length > 0) {
+      if (isNearBottom || displayMessages.length > 0) {
         conversationRef.current.scrollTo({
           top: scrollHeight,
           behavior: 'smooth'
         });
       }
     }
-  }, [messages]);
+  }, [displayMessages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim() && onAddMessage) {
-      onAddMessage(inputValue.trim());
+      // Create new user message
+      const newUserMessage: Message = {
+        role: 'user',
+        content: inputValue.trim(),
+        // timestamp: new Date()
+      };
+      
+      // Create full conversation with new message
+      const updatedFullConversation = [
+        ...fullConversation,
+        newUserMessage
+      ];
+      
+      // Pass the complete conversation to parent
+      onAddMessage(updatedFullConversation);
       setInputValue("");
     }
   };
@@ -48,12 +71,12 @@ const ConversationBlock = ({ messages, onAddMessage }: ConversationBlockProps) =
         ref={conversationRef}
         className={styles.conversation}
       >
-        {messages.length === 0 ? (
+        {displayMessages.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No messages yet. Start a conversation!</p>
           </div>
         ) : (
-          messages.map((message, index) => (
+          displayMessages.map((message, index) => (
             <div
               key={index}
               className={`${styles.message} ${

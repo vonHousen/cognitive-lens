@@ -1,5 +1,5 @@
 export interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp?: Date;
 }
@@ -11,7 +11,6 @@ export const messagesStarter: Message[] = [
   {
     role: 'assistant' as const,
     content: 'Hi, tell me about yourself.',
-    timestamp: new Date(baseTime.getTime())
   },
 ];
 

@@ -15,6 +15,7 @@ load_dotenv(dotenv_path=curr_dir + "/.env")     # TODO is it necessary?
 class BaseSettingsConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file_encoding="utf-8")
     session_secret: SecretStr
+    frontend_url: str
     openai_api_key: SecretStr
 
 
