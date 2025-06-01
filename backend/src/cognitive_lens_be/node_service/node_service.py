@@ -98,7 +98,7 @@ class NodeService:
             while feedback_rounds < self._feedback_max_rounds:
                 try:
                     executor_initial_response = await acompletion(
-                        model="gpt-4.1-mini",
+                        model="o4-mini",
                         messages=executor_input_messages,
                         response_format=output_schema or None,
                     )
