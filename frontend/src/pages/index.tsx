@@ -6,10 +6,12 @@ import Block from "@/components/Block";
 import ConversationBlock from "@/components/ConversationBlock";
 import SOAPBlock from "@/components/SOAPBlock";
 import TextContainer from "@/components/TextContainer";
-import { messagesStarter, soapMassiveContentStarter, textContents, Message, soapContentStarter } from "@/utils/constants";
+import { messagesStarter, soapMassiveContentStarter, Message, soapContentStarter, thinkingProcessStarter, thinkingProcessMassive } from "@/utils/constants";
 import { ResponseFormat, LLMResponse } from "@/utils/llm";
 import { runNode } from "@/utils/api";
 import { SOAPData } from "@/components/SOAPBlock";
+import ThinkingContainer from "@/components/ThinkingContainer";
+import { ThinkingProcessData } from "@/components/ThinkingContainer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +25,8 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>(messagesStarter);
-  const [soapData, setSoapData] = useState<SOAPData>(soapMassiveContentStarter);
+  const [soapData, setSoapData] = useState<SOAPData>(soapContentStarter);
+  const [thinkingData, setThinkingData] = useState<ThinkingProcessData>(thinkingProcessStarter);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddMessage = async (fullConversation: Message[]) => {
@@ -42,7 +45,8 @@ export default function Home() {
 
       // Debug: Log the request being sent to backend
       console.log('🚀 SENDING TO BACKEND:', {
-        conversation: backendConversation
+        conversation: backendConversation,
+        output_schema: ResponseFormat
       });
 
       // Call backend API
@@ -57,6 +61,16 @@ export default function Home() {
       if (response.success && response.messages?.output_message) {
         const messageContent = response.messages.output_message.content;
         
+        // Update thinking process data if available
+        if (response.messages?.thinking_process) {
+          setThinkingData({
+            steps: response.messages.thinking_process.map((step: any) => ({
+              role: step.role,
+              content: step.content
+            }))
+          });
+        }
+
         // Try to parse as JSON to check for SOAP updates
         let parsedResponse: LLMResponse;
         try {
@@ -135,7 +149,7 @@ export default function Home() {
           </Block>
 
           <Block>
-            <TextContainer textContents={textContents} />
+            <ThinkingContainer data={thinkingData} />
           </Block>
         </main>
       </div>

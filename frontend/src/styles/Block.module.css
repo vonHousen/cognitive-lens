@@ -10,5 +10,5 @@
 }
 
 .block:not(:last-child) {
-    border-right: 1px solid white;
+    border-right: 1px solid #dfe1e4;
 } 
