@@ -1,8 +1,12 @@
 import Head from "next/head";
-import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
+import { useState } from "react";
 import styles from "@/styles/Home.module.css";
-import { useState, useEffect } from 'react';
+import Block from "@/components/Block";
+import ConversationBlock from "@/components/ConversationBlock";
+import SOAPBlock from "@/components/SOAPBlock";
+import TextContainer from "@/components/TextContainer";
+import { sampleMessages, soapContent, textContents, Message } from "@/utils/constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,41 +19,15 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
-  const [message, setMessage] = useState('');
-  const [healthStatus, setHealthStatus] = useState("Checking...");
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const [messages, setMessages] = useState<Message[]>(sampleMessages);
 
-  useEffect(() => {
-    // Check health status when component mounts
-    checkHealth();
-  }, []);
-
-  const sayHiToMom = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      setMessage(data.message || 'Hi sent to Mom!');
-    } catch (error) {
-      console.error('Error saying hi to mom:', error);
-      setMessage('Failed to say hi to Mom. Check console for details.');
-    }
-  };
-
-  const checkHealth = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/`);
-      const data = await response.json();
-      setHealthStatus(data.status || 'API is running');
-    } catch (error) {
-      console.error('Health check failed:', error);
-      setHealthStatus('API is not responding');
-    }
+  const handleAddMessage = (content: string) => {
+    const newMessage: Message = {
+      role: 'user',
+      content,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, newMessage]);
   };
 
   return (
@@ -64,34 +42,20 @@ export default function Home() {
         className={`${styles.page} ${geistSans.variable} ${geistMono.variable}`}
       >
         <main className={styles.main}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js logo"
-            width={180}
-            height={38}
-            priority
-          />
+          <Block>
+            <SOAPBlock data={soapContent} />
+          </Block>
 
-          <div className={styles.card}>
-            <button onClick={sayHiToMom} className={styles.button}>
-              Say Hi to Mom
-            </button>
+          <Block>
+            <ConversationBlock 
+              messages={messages} 
+              onAddMessage={handleAddMessage}
+            />
+          </Block>
 
-            {message && (
-              <div className={styles.response}>
-                <p>{message}</p>
-              </div>
-            )}
-          </div>
-
-          <div className={styles.card}>
-            <h2>API Health Status</h2>
-            <p className={styles.status}>Status: {healthStatus}</p>
-            <button onClick={checkHealth} className={styles.refreshButton}>
-              Refresh Status
-            </button>
-          </div>
+          <Block>
+            <TextContainer textContents={textContents} />
+          </Block>
         </main>
       </div>
     </>
