@@ -108,7 +108,7 @@ class NodeService:
 
                 conversation_history = executor_input_messages.copy()
                 conversation_history.append({"content": executor_msg, "role": ConversationRole.ASSISTANT})
-                thinking_process.append({"content": executor_msg, "role": AgentRole.EXECUTOR})
+                thinking_process.append(Message(content=executor_msg, role=AgentRole.EXECUTOR))
 
                 supervision_result_stream = Runner.run_streamed(
                     self._supervising_agent,
@@ -134,9 +134,9 @@ class NodeService:
                             f"Using Tool '{event.data.item.name}': '{truncated_input}'."
                         )
                     elif event.type == "run_item_stream_event" and event.item.type == "tool_call_output_item":
-                        judge_msg = event.item.output
-                        LOGGER.debug(f"Tool output: {judge_msg}")
-                        thinking_process.append({"content": judge_msg, "role": AgentRole.JUDGE})
+                        judge_msg = JudgeResponse.model_validate_json(event.item.output)
+                        LOGGER.debug(f"Tool output: {judge_msg.model_dump()}.")
+                        thinking_process.append(Message(content=judge_msg.feedback, role=AgentRole.JUDGE))
 
                 supervisor_feedback = SupervisingAgentResponse.model_validate_json(supervision_result)
                 LOGGER.info(f"Supervising agent feedback: '{supervisor_feedback.model_dump()}'.")
