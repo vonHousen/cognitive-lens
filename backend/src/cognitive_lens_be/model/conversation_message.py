@@ -2,7 +2,7 @@ import enum
 from pydantic import BaseModel
 
 
-class Role(str, enum.Enum):
+class ConversationRole(str, enum.Enum):
     """Role of the agent."""
     SYSTEM = "system"
     USER = "user"
@@ -11,5 +11,5 @@ class Role(str, enum.Enum):
 
 class ConversationMessage(BaseModel):
     """Single conversation message."""
-    role: Role
+    role: ConversationRole
     content: str

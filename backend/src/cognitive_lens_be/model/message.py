@@ -10,6 +10,8 @@ class AgentRole(str, enum.Enum):
     """The agent that is executing the original request."""
     SUPERVISOR = "SUPERVISOR"
     """The agent that oversees the executor."""
+    JUDGE = "JUDGE"
+    """The agent that judges the executor's response."""
 
 
 class Message(BaseModel):
