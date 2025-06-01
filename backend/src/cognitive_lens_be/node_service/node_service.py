@@ -165,13 +165,13 @@ class NodeService:
                     content=supervisor_feedback.feedback,
                     role=AgentRole.SUPERVISOR,
                     structured_data=supervisor_feedback.model_dump(),
-                    decision=supervisor_feedback.is_executor_response_valid
+                    decision=supervisor_feedback.is_ai_agent_response_valid
                 ))
                 executor_input_messages.append(
                     {"content": supervisor_feedback.feedback, "role": ConversationRole.SYSTEM}
                 )
 
-                if supervisor_feedback.is_executor_response_valid:
+                if supervisor_feedback.is_ai_agent_response_valid:
                     break
 
         return ResultMessages(

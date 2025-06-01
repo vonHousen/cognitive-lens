@@ -115,7 +115,7 @@ const ConversationBlock = ({ messages, soapData, onAddMessage }: ConversationBlo
             >
               <div className={styles.messageHeader}>
                 <span className={styles.role}>
-                  {message.role === 'user' ? '👤 You' : '🤖 Assistant'}
+                  {message.role === 'user' ? '👤 You' : '👨‍💼 AI Therapist'}
                 </span>
                 {message.timestamp && (
                   <span className={styles.timestamp}>
