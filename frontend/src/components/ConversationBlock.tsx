@@ -1,20 +1,50 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "@/styles/Conversation.module.css";
 import { Message } from "@/utils/constants";
+import { SOAPData } from "@/components/SOAPBlock";
 import { MainPrompt } from "@/utils/llm";
 
 interface ConversationBlockProps {
   messages: Message[];
+  soapData: SOAPData;
   onAddMessage?: (fullConversation: Message[]) => void;
 }
 
-const ConversationBlock = ({ messages, onAddMessage }: ConversationBlockProps) => {
+const ConversationBlock = ({ messages, soapData, onAddMessage }: ConversationBlockProps) => {
   const [inputValue, setInputValue] = useState("");
   const conversationRef = useRef<HTMLDivElement>(null);
 
-  // Create complete conversation including system prompt
+  // Create SOAP XML section if any SOAP data exists
+  const createSOAPSection = (soapData: SOAPData): string => {
+    const soapElements: string[] = [];
+    
+    if (soapData.patientInfo.trim()) {
+      soapElements.push(`<GENERAL_INFO>${soapData.patientInfo}</GENERAL_INFO>`);
+    }
+    if (soapData.S.trim()) {
+      soapElements.push(`<S>${soapData.S}</S>`);
+    }
+    if (soapData.O.trim()) {
+      soapElements.push(`<O>${soapData.O}</O>`);
+    }
+    if (soapData.A.trim()) {
+      soapElements.push(`<A>${soapData.A}</A>`);
+    }
+    if (soapData.P.trim()) {
+      soapElements.push(`<P>${soapData.P}</P>`);
+    }
+
+    if (soapElements.length > 0) {
+      return `\n\n<SOAP>\n${soapElements.join('\n')}\n</SOAP>`;
+    }
+    
+    return "";
+  };
+
+  // Create complete conversation including system prompt with SOAP data
+  const systemMessageContent = MainPrompt + createSOAPSection(soapData);
   const fullConversation = [
-    { role: 'system' as const, content: MainPrompt },
+    { role: 'system' as const, content: systemMessageContent },
     ...messages
   ];
 

@@ -28,19 +28,19 @@ const SOAPBlock = ({ data }: SOAPBlockProps) => {
       {/* SOAP Elements */}
       <div className={styles.soapElements}>
         <div className={styles.soapItem}>
-          <div className={styles.soapLabel}>S:</div>
+          <div className={styles.soapLabel}>Subjective:</div>
           <div className={styles.soapContent}>{data.S}</div>
         </div>
         <div className={styles.soapItem}>
-          <div className={styles.soapLabel}>O:</div>
+          <div className={styles.soapLabel}>Objective:</div>
           <div className={styles.soapContent}>{data.O}</div>
         </div>
         <div className={styles.soapItem}>
-          <div className={styles.soapLabel}>A:</div>
+          <div className={styles.soapLabel}>Assessment:</div>
           <div className={styles.soapContent}>{data.A}</div>
         </div>
         <div className={styles.soapItem}>
-          <div className={styles.soapLabel}>P:</div>
+          <div className={styles.soapLabel}>Plan:</div>
           <div className={styles.soapContent}>{data.P}</div>
         </div>
       </div>

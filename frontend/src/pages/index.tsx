@@ -6,9 +6,10 @@ import Block from "@/components/Block";
 import ConversationBlock from "@/components/ConversationBlock";
 import SOAPBlock from "@/components/SOAPBlock";
 import TextContainer from "@/components/TextContainer";
-import { messagesStarter, soapContentStarter, textContents, Message } from "@/utils/constants";
-import { ResponseFormat } from "@/utils/llm";
+import { messagesStarter, soapMassiveContentStarter, textContents, Message, soapContentStarter } from "@/utils/constants";
+import { ResponseFormat, LLMResponse } from "@/utils/llm";
 import { runNode } from "@/utils/api";
+import { SOAPData } from "@/components/SOAPBlock";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,6 +23,7 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>(messagesStarter);
+  const [soapData, setSoapData] = useState<SOAPData>(soapMassiveContentStarter);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddMessage = async (fullConversation: Message[]) => {
@@ -38,21 +40,56 @@ export default function Home() {
         content: msg.content
       }));
 
+      // Debug: Log the request being sent to backend
+      console.log('🚀 SENDING TO BACKEND:', {
+        conversation: backendConversation
+      });
+
       // Call backend API
       const response = await runNode({
         conversation: backendConversation,
         output_schema: ResponseFormat
       });
 
+      // Debug: Log the raw response from backend
+      console.log('📥 RAW BACKEND RESPONSE:', response);
+
       if (response.success && response.messages?.output_message) {
-        // Add assistant response to messages
+        const messageContent = response.messages.output_message.content;
+        
+        // Try to parse as JSON to check for SOAP updates
+        let parsedResponse: LLMResponse;
+        try {
+          parsedResponse = JSON.parse(messageContent) as LLMResponse;
+        } catch (e) {
+          // If not JSON, treat as plain text response
+          parsedResponse = { respond_to_patient: messageContent };
+        }
+
+        // Always add the response to patient as assistant message
         const assistantMessage: Message = {
           role: 'assistant',
-          content: response.messages.output_message.content,
+          content: parsedResponse.respond_to_patient || messageContent,
           timestamp: new Date()
         };
 
         setMessages(prev => [...prev, assistantMessage]);
+
+        // Update SOAP data if any SOAP fields are present
+        if (parsedResponse.updated_general_info || 
+            parsedResponse.updated_subjective || 
+            parsedResponse.updated_objective || 
+            parsedResponse.updated_assessment || 
+            parsedResponse.updated_plan) {
+          
+          setSoapData(prevSoap => ({
+            patientInfo: parsedResponse.updated_general_info || prevSoap.patientInfo,
+            S: parsedResponse.updated_subjective || prevSoap.S,
+            O: parsedResponse.updated_objective || prevSoap.O,
+            A: parsedResponse.updated_assessment || prevSoap.A,
+            P: parsedResponse.updated_plan || prevSoap.P
+          }));
+        }
       }
     } catch (error) {
       console.error('Error calling backend:', error);
@@ -81,12 +118,13 @@ export default function Home() {
       >
         <main className={styles.main}>
           <Block>
-            <SOAPBlock data={soapContentStarter} />
+            <SOAPBlock data={soapData} />
           </Block>
 
           <Block>
             <ConversationBlock 
               messages={messages} 
+              soapData={soapData}
               onAddMessage={handleAddMessage}
             />
             {isLoading && (

@@ -62,3 +62,12 @@ export const ResponseFormat = {
     }
 };
 
+export interface LLMResponse {
+  updated_general_info?: string;
+  updated_subjective?: string;
+  updated_objective?: string;
+  updated_assessment?: string;
+  updated_plan?: string;
+  respond_to_patient: string;
+}
+
