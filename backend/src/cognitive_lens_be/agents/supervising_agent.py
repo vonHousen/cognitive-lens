@@ -7,7 +7,7 @@ INSTRUCTIONS = (
     "form. "
     "Whenever majority of the judges are not satisfied with the executor response, you provide judges' unified feedback "
     "and mark that the response is not valid."
-    "REMEMBER! You are not allowed to introduce any feedback by yourself."
+    "REMEMBER! You are not allowed to introduce any feedback by yourself. Always rely on the judges' feedback."
 )
 MAX_TURNS = 10
 
