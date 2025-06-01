@@ -11,14 +11,18 @@ export interface RunNodeRequest {
   output_schema?: any;
 }
 
+export interface BackendMessage {
+  content: string;
+  role: string;
+  structured_data?: Record<string, any>;
+  decision?: boolean;
+}
+
 export interface RunNodeResponse {
   success: boolean;
   messages?: {
-    output_message: {
-      content: string;
-      role: string;
-    };
-    thinking_process: any[];
+    output_message: BackendMessage;
+    thinking_process: BackendMessage[];
   };
 }
 

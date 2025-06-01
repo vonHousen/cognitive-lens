@@ -12,10 +12,10 @@ from cognitive_lens_be.model.result_messages import ResultMessages
 from cognitive_lens_be.utils.logger import LOGGER
 from cognitive_lens_be.agents.supervising_agent import (
     INSTRUCTIONS as SUPERVISING_AGENT_INSTRUCTIONS,
-    SupervisingAgentResponse,
+    JudgeAgentResponse,
     MAX_TURNS
 )
-from cognitive_lens_be.agents.judge_abstract import JudgeResponse
+from cognitive_lens_be.agents.judge_abstract import JuryMemberResponse
 from cognitive_lens_be.agents.judge_contextual_analyzer import (
     INSTRUCTIONS as JUDGE_CONTEXTUAL_ANALYZER_INSTRUCTIONS,
     AGENT_DESCRIPTION as JUDGE_CONTEXTUAL_ANALYZER_DESCRIPTION,
@@ -40,45 +40,61 @@ class NodeService:
         litellm.aclient_session = httpx.AsyncClient(verify=False)   # TODO hacks to make it work
 
         judge_contextual_analyzer = Agent(
-            name="judge_contextual_analyzer",
+            name="jury_contextual_analyzer",
             instructions=JUDGE_CONTEXTUAL_ANALYZER_INSTRUCTIONS,
             model=model_name_judge,
-            output_type=JudgeResponse,
+            output_type=JuryMemberResponse,
         )
         judge_creative_thinker = Agent(
-            name="judge_creative_thinker",
+            name="jury_creative_thinker",
             instructions=JUDGE_CREATIVE_THINKER_INSTRUCTIONS,
             model=model_name_judge,
-            output_type=JudgeResponse,
+            output_type=JuryMemberResponse,
         )
         judge_detail_oriented = Agent(
-            name="judge_detail_oriented",
+            name="jury_detail_oriented",
             instructions=JUDGE_DETAIL_ORIENTED_INSTRUCTIONS,
             model=model_name_judge,
-            output_type=JudgeResponse,
+            output_type=JuryMemberResponse,
         )
 
         self._supervising_agent = Agent(
-            name="supervising_agent",
+            name="judge_agent",
             instructions=SUPERVISING_AGENT_INSTRUCTIONS,
             model=model_name_supervisor,
-            output_type=SupervisingAgentResponse,
+            output_type=JudgeAgentResponse,
             tools=[
                 judge_contextual_analyzer.as_tool(
-                    tool_name="judge_contextual_analyzer",
+                    tool_name="jury_contextual_analyzer",
                     tool_description=JUDGE_CONTEXTUAL_ANALYZER_DESCRIPTION,
                 ),
                 judge_creative_thinker.as_tool(
-                    tool_name="judge_creative_thinker",
+                    tool_name="jury_creative_thinker",
                     tool_description=JUDGE_CREATIVE_THINKER_DESCRIPTION,
                 ),
                 judge_detail_oriented.as_tool(
-                    tool_name="judge_detail_oriented",
+                    tool_name="jury_detail_oriented",
                     tool_description=JUDGE_DETAIL_ORIENTED_DESCRIPTION,
                 ),
             ]
         )
         self._feedback_max_rounds = 3
+
+    def _parse_executor_message(self, content: str) -> Message:
+        """Parse executor message and extract structured data if available."""
+        structured_data = None
+        try:
+            parsed_json = json.loads(content)
+            if isinstance(parsed_json, dict):
+                structured_data = parsed_json
+        except (json.JSONDecodeError, TypeError):
+            pass
+        
+        return Message(
+            content=content,
+            role=AgentRole.EXECUTOR,
+            structured_data=structured_data
+        )
 
     async def get_response(
             self,
@@ -108,7 +124,7 @@ class NodeService:
 
                 conversation_history = executor_input_messages.copy()
                 conversation_history.append({"content": executor_msg, "role": ConversationRole.ASSISTANT})
-                thinking_process.append(Message(content=executor_msg, role=AgentRole.EXECUTOR))
+                thinking_process.append(self._parse_executor_message(executor_msg))
 
                 supervision_result_stream = Runner.run_streamed(
                     self._supervising_agent,
@@ -127,22 +143,30 @@ class NodeService:
                         and isinstance(event.data.item, ResponseFunctionToolCall)
                     ):
                         agent_input = json.loads(event.data.item.arguments).get("input", "")
-                        # Truncate agent_input if it's too long and add italic styling
-                        # truncated_input = agent_input[:50] + "..." if len(agent_input) > 50 else agent_input
                         truncated_input = agent_input
                         LOGGER.debug(
                             f"Using Tool '{event.data.item.name}': '{truncated_input}'."
                         )
                     elif event.type == "run_item_stream_event" and event.item.type == "tool_call_output_item":
-                        judge_msg = JudgeResponse.model_validate_json(event.item.output)
+                        judge_msg = JuryMemberResponse.model_validate_json(event.item.output)
                         LOGGER.debug(f"Tool output: {judge_msg.model_dump()}.")
-                        thinking_process.append(Message(content=judge_msg.feedback, role=AgentRole.JUDGE))
+                        thinking_process.append(Message(
+                            content=judge_msg.feedback,
+                            role=AgentRole.JUDGE,
+                            structured_data=judge_msg.model_dump(),
+                            decision=judge_msg.is_task_good_enough
+                        ))
 
-                supervisor_feedback = SupervisingAgentResponse.model_validate_json(supervision_result)
+                supervisor_feedback = JudgeAgentResponse.model_validate_json(supervision_result)
                 LOGGER.info(f"Supervising agent feedback: '{supervisor_feedback.model_dump()}'.")
 
                 feedback_rounds += 1
-                thinking_process.append(Message(content=supervisor_feedback.feedback, role=AgentRole.SUPERVISOR))
+                thinking_process.append(Message(
+                    content=supervisor_feedback.feedback,
+                    role=AgentRole.SUPERVISOR,
+                    structured_data=supervisor_feedback.model_dump(),
+                    decision=supervisor_feedback.is_executor_response_valid
+                ))
                 executor_input_messages.append(
                     {"content": supervisor_feedback.feedback, "role": ConversationRole.SYSTEM}
                 )
@@ -151,6 +175,6 @@ class NodeService:
                     break
 
         return ResultMessages(
-            output_message=Message(content=executor_msg, role=AgentRole.EXECUTOR),
+            output_message=self._parse_executor_message(executor_msg),
             thinking_process=thinking_process,
         )

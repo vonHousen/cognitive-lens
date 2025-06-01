@@ -10,7 +10,7 @@ AGENT_DESCRIPTION = (
     "(3) all the necessary context to perform evaluation effectively. "
 )
 
-class JudgeResponse(BaseModel):
+class JuryMemberResponse(BaseModel):
     is_task_good_enough: bool
     """Determines if the task is done good enough, or if it should be generated again given your feedback."""
     feedback: str

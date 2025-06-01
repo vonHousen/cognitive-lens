@@ -8,7 +8,7 @@ import SOAPBlock from "@/components/SOAPBlock";
 import TextContainer from "@/components/TextContainer";
 import { messagesStarter, soapMassiveContentStarter, Message, soapContentStarter, thinkingProcessStarter, thinkingProcessMassive } from "@/utils/constants";
 import { ResponseFormat, LLMResponse } from "@/utils/llm";
-import { runNode } from "@/utils/api";
+import { runNode, BackendMessage } from "@/utils/api";
 import { SOAPData } from "@/components/SOAPBlock";
 import ThinkingContainer from "@/components/ThinkingContainer";
 import { ThinkingProcessData } from "@/components/ThinkingContainer";
@@ -33,63 +33,63 @@ export default function Home() {
     try {
       setIsLoading(true);
       
-      // Extract just the user/assistant messages (excluding system) for state
       const userAssistantMessages = fullConversation.filter(msg => msg.role !== 'system');
       setMessages(userAssistantMessages);
 
-      // Prepare conversation for backend (convert Message[] to ConversationMessage[])
       const backendConversation = fullConversation.map(msg => ({
         role: msg.role,
         content: msg.content
       }));
 
-      // Debug: Log the request being sent to backend
       console.log('🚀 SENDING TO BACKEND:', {
         conversation: backendConversation,
         output_schema: ResponseFormat
       });
 
-      // Call backend API
       const response = await runNode({
         conversation: backendConversation,
         output_schema: ResponseFormat
       });
 
-      // Debug: Log the raw response from backend
       console.log('📥 RAW BACKEND RESPONSE:', response);
 
       if (response.success && response.messages?.output_message) {
-        const messageContent = response.messages.output_message.content;
+        const outputMessage = response.messages.output_message;
         
-        // Update thinking process data if available
         if (response.messages?.thinking_process) {
           setThinkingData({
-            steps: response.messages.thinking_process.map((step: any) => ({
+            steps: response.messages.thinking_process.map((step: BackendMessage) => ({
               role: step.role,
-              content: step.content
+              content: step.content,
+              structured_data: step.structured_data,
+              decision: step.decision
             }))
           });
         }
 
-        // Try to parse as JSON to check for SOAP updates
         let parsedResponse: LLMResponse;
-        try {
-          parsedResponse = JSON.parse(messageContent) as LLMResponse;
-        } catch (e) {
-          // If not JSON, treat as plain text response
-          parsedResponse = { respond_to_patient: messageContent };
+        let messageContent = outputMessage.content;
+
+        if (outputMessage.structured_data) {
+          parsedResponse = outputMessage.structured_data as LLMResponse;
+          messageContent = parsedResponse.respond_to_patient || outputMessage.content;
+        } else {
+          try {
+            parsedResponse = JSON.parse(messageContent) as LLMResponse;
+            messageContent = parsedResponse.respond_to_patient || messageContent;
+          } catch (e) {
+            parsedResponse = { respond_to_patient: messageContent };
+          }
         }
 
-        // Always add the response to patient as assistant message
         const assistantMessage: Message = {
           role: 'assistant',
-          content: parsedResponse.respond_to_patient || messageContent,
+          content: messageContent,
           timestamp: new Date()
         };
 
         setMessages(prev => [...prev, assistantMessage]);
 
-        // Update SOAP data if any SOAP fields are present
         if (parsedResponse.updated_general_info || 
             parsedResponse.updated_subjective || 
             parsedResponse.updated_objective || 
@@ -107,7 +107,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error calling backend:', error);
-      // Optionally add an error message to the conversation
       const errorMessage: Message = {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',

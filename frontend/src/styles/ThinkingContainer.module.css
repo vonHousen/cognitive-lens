@@ -133,4 +133,116 @@
   border-radius: 4px;
   text-align: center;
   border: 1px solid #dee2e6;
+}
+
+.structuredOutput {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px;
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.therapistMessage {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.messageContent {
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #007bff;
+  font-style: italic;
+  color: #495057;
+}
+
+.soapUpdates {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.soapSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  border-left: 3px solid #28a745;
+}
+
+.soapLabel {
+  font-weight: 600;
+  color: #495057;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.soapContent {
+  color: #6c757d;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.juryDecision {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.supervisorDecision {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.decisionIndicator {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  width: fit-content;
+}
+
+.decisionIndicator.approved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.decisionIndicator.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.feedback {
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
 } 
