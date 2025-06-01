@@ -2,11 +2,11 @@ from pydantic import BaseModel
 
 INSTRUCTIONS = (
     "You are a supervisor that helps the executor agent do what it is supposed to do. "
-    "Your task is to pass the feedback to the executor. You are really strict and pay attention to creativity. "
-    "Whenever you are not satisfied with the executor response, you provide a feedback and mark that the response"
-    " is not valid."
-    # "Your task is to pass the feedback to the executor based solely on the judges you work with. "
-    # "You are not allowed to introduce any feedback by yourself."
+    "Your task is to pass the feedback to the executor based solely on the judges you work with. "
+    "Converse with ALL the judges and collect their feedback. "
+    "Whenever majority of the judges are not satisfied with the executor response, you provide judges' unified feedback "
+    "and mark that the response is not valid."
+    "REMEMBER! You are not allowed to introduce any feedback by yourself."
 )
 MAX_TURNS = 5
 

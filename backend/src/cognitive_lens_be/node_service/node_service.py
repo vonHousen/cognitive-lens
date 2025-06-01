@@ -1,11 +1,7 @@
 import litellm
 import httpx
 from litellm import acompletion, BadRequestError
-from agents import (
-    Agent,
-    Runner,
-    trace,
-)
+from agents import Agent, Runner, trace
 
 from cognitive_lens_be.model.conversation_message import ConversationMessage, ConversationRole
 from cognitive_lens_be.model.message import Message, AgentRole
@@ -15,6 +11,18 @@ from cognitive_lens_be.agents.supervising_agent import (
     INSTRUCTIONS as SUPERVISING_AGENT_INSTRUCTIONS,
     SupervisingAgentResponse,
     MAX_TURNS
+)
+from cognitive_lens_be.agents.judge_contextual_analyzer import (
+    INSTRUCTIONS as JUDGE_CONTEXTUAL_ANALYZER_INSTRUCTIONS,
+    AGENT_DESCRIPTION as JUDGE_CONTEXTUAL_ANALYZER_DESCRIPTION,
+)
+from cognitive_lens_be.agents.judge_creative_thinker import (
+    INSTRUCTIONS as JUDGE_CREATIVE_THINKER_INSTRUCTIONS,
+    AGENT_DESCRIPTION as JUDGE_CREATIVE_THINKER_DESCRIPTION,
+)
+from cognitive_lens_be.agents.judge_detail_oriented import (
+    INSTRUCTIONS as JUDGE_DETAIL_ORIENTED_INSTRUCTIONS,
+    AGENT_DESCRIPTION as JUDGE_DETAIL_ORIENTED_DESCRIPTION,
 )
 
 
@@ -26,11 +34,42 @@ class NodeService:
 
     def __init__(self):
         litellm.aclient_session = httpx.AsyncClient(verify=False)   # TODO hacks to make it work
+
+        judge_contextual_analyzer = Agent(
+            name="judge_contextual_analyzer",
+            instructions=JUDGE_CONTEXTUAL_ANALYZER_INSTRUCTIONS,
+            model="gpt-4.1-mini",
+        )
+        judge_creative_thinker = Agent(
+            name="judge_creative_thinker",
+            instructions=JUDGE_CREATIVE_THINKER_INSTRUCTIONS,
+            model="gpt-4.1-mini",
+        )
+        judge_detail_oriented = Agent(
+            name="judge_detail_oriented",
+            instructions=JUDGE_DETAIL_ORIENTED_INSTRUCTIONS,
+            model="gpt-4.1-mini",
+        )
+
         self._supervising_agent = Agent(
             name="supervising_agent",
             instructions=SUPERVISING_AGENT_INSTRUCTIONS,
             model="gpt-4.1-mini",
             output_type=SupervisingAgentResponse,
+            tools=[
+                judge_contextual_analyzer.as_tool(
+                    tool_name="judge_contextual_analyzer",
+                    tool_description=JUDGE_CONTEXTUAL_ANALYZER_DESCRIPTION,
+                ),
+                judge_creative_thinker.as_tool(
+                    tool_name="judge_creative_thinker",
+                    tool_description=JUDGE_CREATIVE_THINKER_DESCRIPTION,
+                ),
+                judge_detail_oriented.as_tool(
+                    tool_name="judge_detail_oriented",
+                    tool_description=JUDGE_DETAIL_ORIENTED_DESCRIPTION,
+                ),
+            ]
         )
         self._feedback_max_rounds = 3
 
