@@ -31,33 +31,42 @@ Analyze the current conversation in context of the existing SOAP profile. Determ
 Your response to the patient should reflect therapeutic best practices, demonstrate understanding, and guide the session constructively.
 `;
 
-const OutputSchema = {
-    type: "object",
-    properties: {
-        updated_general_info: {
-            type: "string",
-            description: "Update when new demographic, background, or contextual information emerges. Include patient demographics, relevant medical/psychiatric history, social determinants of health, family history, and other foundational information that informs treatment but doesn't fit other SOAP categories. Preserve all existing relevant information while integrating new details.",
+const response_format = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "mental_health_soap_update",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "updated_general_info": {
+                    "type": "string",
+                    "description": "Update when new demographic, background, or contextual information emerges. Include patient demographics, relevant medical/psychiatric history, social determinants of health, family history, and other foundational information that informs treatment but doesn't fit other SOAP categories. Preserve all existing relevant information while integrating new details."
+                },
+                "updated_subjective": {
+                    "type": "string",
+                    "description": "Update when patient shares new self-reported experiences, symptoms, or perspectives. Document the patient's own words about their mental state, emotional experiences, symptom descriptions, life stressors, treatment concerns, and subjective progress reports. Maintain chronological context of symptom evolution and patient insights."
+                },
+                "updated_objective": {
+                    "type": "string",
+                    "description": "Update when new observable clinical data is gathered. Record mental status examination findings, behavioral observations, appearance, affect, mood presentation, speech characteristics, thought processes, cognitive functioning, and any measurable assessment results. Include only factual, observable information without interpretation."
+                },
+                "updated_assessment": {
+                    "type": "string",
+                    "description": "Update when clinical understanding evolves based on new information. Provide diagnostic impressions, symptom severity assessments, risk/protective factor analysis, treatment response evaluation, clinical formulation updates, and prognostic considerations. Integrate new clinical insights with existing assessment framework."
+                },
+                "updated_plan": {
+                    "type": "string",
+                    "description": "Update when treatment approach modifications are indicated. Specify therapeutic interventions, treatment goals, homework assignments, medication considerations, referral needs, safety planning elements, session frequency recommendations, and measurable objectives. Ensure continuity with existing treatment framework while incorporating necessary adjustments."
+                },
+                "respond_to_patient": {
+                    "type": "string",
+                    "description": "Required therapeutic response demonstrating active listening, clinical expertise, and empathetic engagement. Provide validation, therapeutic insights, clarifying questions, or guidance that advances treatment goals. Response should reflect professional therapeutic communication standards and support the patient's wellbeing and treatment progress."
+                }
+            },
+            "required": ["respond_to_patient"],
+            "additionalProperties": false
         },
-        updated_subjective: {
-            type: "string",
-            description: "Update when patient shares new self-reported experiences, symptoms, or perspectives. Document the patient's own words about their mental state, emotional experiences, symptom descriptions, life stressors, treatment concerns, and subjective progress reports. Maintain chronological context of symptom evolution and patient insights.",
-        },
-        updated_objective: {
-            type: "string",
-            description: "Update when new observable clinical data is gathered. Record mental status examination findings, behavioral observations, appearance, affect, mood presentation, speech characteristics, thought processes, cognitive functioning, and any measurable assessment results. Include only factual, observable information without interpretation.",
-        },
-        updated_assessment: {
-            type: "string",
-            description: "Update when clinical understanding evolves based on new information. Provide diagnostic impressions, symptom severity assessments, risk/protective factor analysis, treatment response evaluation, clinical formulation updates, and prognostic considerations. Integrate new clinical insights with existing assessment framework.",
-        },
-        updated_plan: {
-            type: "string",
-            description: "Update when treatment approach modifications are indicated. Specify therapeutic interventions, treatment goals, homework assignments, medication considerations, referral needs, safety planning elements, session frequency recommendations, and measurable objectives. Ensure continuity with existing treatment framework while incorporating necessary adjustments.",
-        },
-        respond_to_patient: {
-            type: "string",
-            description: "Required therapeutic response demonstrating active listening, clinical expertise, and empathetic engagement. Provide validation, therapeutic insights, clarifying questions, or guidance that advances treatment goals. Response should reflect professional therapeutic communication standards and support the patient's wellbeing and treatment progress.",
-        },
-    },
-    required: ["respond_to_patient"],
+        "strict": false
+    }
 };
+
