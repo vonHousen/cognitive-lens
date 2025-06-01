@@ -1,0 +1,96 @@
+.thinkingContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  min-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #6c757d #e9ecef;
+  width: 90%;
+  height: 95%;
+}
+
+.thinkingContainer::-webkit-scrollbar {
+  width: 12px;
+}
+
+.thinkingContainer::-webkit-scrollbar-track {
+  background: #e9ecef;
+  border-radius: 6px;
+}
+
+.thinkingContainer::-webkit-scrollbar-thumb {
+  background: #6c757d;
+  border-radius: 6px;
+}
+
+.thinkingContainer::-webkit-scrollbar-thumb:hover {
+  background: #495057;
+}
+
+.thinkingHeader {
+  margin-bottom: 12px;
+}
+
+.thinkingTitle {
+  color: #212529;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #dee2e6;
+  margin: 12px 0;
+}
+
+.thinkingSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.thinkingItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.roleLabel {
+  font-weight: bold;
+  color: #495057;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.stepContent {
+  color: #6c757d;
+  line-height: 1.5;
+  font-size: 14px;
+  padding: 8px 0;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.emptyState {
+  color: #adb5bd;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+  font-size: 14px;
+} 

@@ -39,7 +39,50 @@ export const soapMassiveContentStarter: SOAPData = {
   P: "1. Chest pain workup: Order EKG (completed - normal), chest X-ray, and cardiac enzymes (troponin I). 2. Pain management: Ibuprofen 600mg orally now and then 400mg every 6 hours as needed for pain. 3. Monitor vital signs every 4 hours. 4. NPO until cardiac enzymes result. 5. If cardiac enzymes negative and chest X-ray normal, discharge home with follow-up instructions. 6. Return precautions: Return immediately if chest pain worsens, develops radiation to arms or jaw, experiences shortness of breath, or any concerning symptoms. 7. Follow-up with primary care physician within 1-2 days. 8. Continue home medications as prescribed."
 };
 
-export const textContents: string[] = [
-  "Text content from LLM",
-  "Another LLM text content",
+export interface ThinkingStep {
+  role: string;
+  content: string;
+}
+
+export interface ThinkingProcessData {
+  steps: ThinkingStep[];
+}
+
+// Add this constant for initial thinking data
+export const thinkingProcessStarter: ThinkingProcessData = {
+  steps: []
+};
+
+// Add massive thinking data for testing layout
+export const thinkingProcessMassive: ThinkingProcessData = {
+  steps: [
+    {
+      role: "EXECUTOR",
+      content: "{\"respond_to_patient\":\"I'd be happy to write a haiku for you. Here's one:\\n\\nWhispering spring breeze,\\nCherry blossoms gently fall,\\nPeace within my heart.\\n\\nHow does this haiku resonate with you? Would you like to explore writing one together during our session?\"}"
+    },
+    {
+      role: "JUDGE",
+      content: "{\"is_task_done_properly\":true,\"feedback\":\"The response effectively fulfills the task by composing an original haiku and inviting the patient to engage collaboratively, which is both thoughtful and creative. The haiku captures a peaceful, evocative scene that can foster reflection, and the invitation to co-create encourages patient involvement—demonstrating flexibility and intuitive communication. To further enhance the creative aspect, you might consider tailoring the haiku more closely to the patient's specific feelings or experiences if known, thereby deepening personal connection.\"}"
+    },
+    {
+      role: "JUDGE",
+      content: "{\"is_task_done_properly\":true,\"feedback\":\"The response is appropriate and thoughtful. It addresses the patient's request by providing a haiku and invites further engagement by suggesting collaboration. The tone is gentle and empathetic, which suits a supportive interaction. Well done in balancing creativity and patient involvement.\"}"
+    },
+    {
+      role: "SUPERVISOR",
+      content: "The response is appropriate and fulfills the patient's request by providing a well-crafted haiku. It maintains a supportive and engaging tone, inviting the patient to participate further by co-creating a haiku, which is therapeutic and encouraging. Both judges noted the creativity and contextual appropriateness of your reply. Keep encouraging patient involvement and tailoring creative outputs to their experiences when possible."
+    }
+  ]
+};
+
+// Replace textContents with thinking process placeholder
+export const thinkingContents: ThinkingStep[] = [
+  {
+    role: "EXECUTOR",
+    content: "Analyzing the user's request and formulating response..."
+  },
+  {
+    role: "JUDGE", 
+    content: "Evaluating response quality and accuracy..."
+  }
 ];
