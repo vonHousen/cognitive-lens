@@ -17,7 +17,7 @@ const ThinkingContainer = ({ data }: ThinkingContainerProps) => {
   return (
     <div className={styles.thinkingContainer}>
       <div className={styles.thinkingHeader}>
-        <h3 className={styles.thinkingTitle}>Thinking Process</h3>
+        <h3 className={styles.thinkingTitle}>Evaluation Process</h3>
       </div>
       
       <hr className={styles.divider} />
