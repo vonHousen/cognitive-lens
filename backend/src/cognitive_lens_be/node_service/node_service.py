@@ -1,5 +1,7 @@
 from typing import Any
 
+import litellm
+import httpx
 from litellm import acompletion, BadRequestError
 
 from cognitive_lens_be.model.conversation_message import ConversationMessage
@@ -11,7 +13,9 @@ from cognitive_lens_be.utils.logger import LOGGER
 class NodeService:
     """All actions related to running the node."""
 
-    # TODO add supervisor
+    def __init__(self):
+        litellm.aclient_session = httpx.AsyncClient(verify=False)
+
     async def run(
             self,
             conversation: list[ConversationMessage],
