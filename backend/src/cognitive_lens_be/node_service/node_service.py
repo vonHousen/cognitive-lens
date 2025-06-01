@@ -36,32 +36,32 @@ class NodeService:
     _supervising_agent: Agent
     _feedback_max_rounds: int
 
-    def __init__(self):
+    def __init__(self, model_name_supervisor: str, model_name_judge: str):
         litellm.aclient_session = httpx.AsyncClient(verify=False)   # TODO hacks to make it work
 
         judge_contextual_analyzer = Agent(
             name="judge_contextual_analyzer",
             instructions=JUDGE_CONTEXTUAL_ANALYZER_INSTRUCTIONS,
-            model="gpt-4.1-mini",
+            model=model_name_judge,
             output_type=JudgeResponse,
         )
         judge_creative_thinker = Agent(
             name="judge_creative_thinker",
             instructions=JUDGE_CREATIVE_THINKER_INSTRUCTIONS,
-            model="gpt-4.1-mini",
+            model=model_name_judge,
             output_type=JudgeResponse,
         )
         judge_detail_oriented = Agent(
             name="judge_detail_oriented",
             instructions=JUDGE_DETAIL_ORIENTED_INSTRUCTIONS,
-            model="gpt-4.1-mini",
+            model=model_name_judge,
             output_type=JudgeResponse,
         )
 
         self._supervising_agent = Agent(
             name="supervising_agent",
             instructions=SUPERVISING_AGENT_INSTRUCTIONS,
-            model="gpt-4.1-mini",
+            model=model_name_supervisor,
             output_type=SupervisingAgentResponse,
             tools=[
                 judge_contextual_analyzer.as_tool(
@@ -83,22 +83,19 @@ class NodeService:
     async def get_response(
             self,
             conversation: list[ConversationMessage],
-            system_prompt: str | None,
+            executor_model_name: str,
             output_schema: dict | None,
     ) -> ResultMessages:
         """Run the agent with the provided prompt."""
         feedback_rounds = 0
         thinking_process = []
-        executor_input_messages = [{
-            "content": system_prompt, "role": ConversationRole.SYSTEM
-        }] if system_prompt else []
-        executor_input_messages.extend([msg.model_dump() for msg in conversation])
+        executor_input_messages = [msg.model_dump() for msg in conversation]
 
         with trace("executor-evaluation"):
             while feedback_rounds < self._feedback_max_rounds:
                 try:
                     executor_initial_response = await acompletion(
-                        model="o4-mini",
+                        model=executor_model_name,
                         messages=executor_input_messages,
                         response_format=output_schema or None,
                     )

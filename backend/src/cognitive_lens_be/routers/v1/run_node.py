@@ -17,12 +17,12 @@ router = APIRouter()
 )
 async def run_node(node: Node) -> ExecutionResult:
     LOGGER.info(f"Executing node: {node.model_dump()}.")
-    service = NodeService()
+    service = NodeService(model_name_judge=node.model_name_judge, model_name_supervisor=node.model_name_supervisor)
 
     try:
         result = await service.get_response(
             conversation=node.conversation,
-            system_prompt=node.system_prompt,
+            executor_model_name=node.model_name_executor,
             output_schema=node.output_schema,
         )
     except:
