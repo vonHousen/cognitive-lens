@@ -69,6 +69,10 @@ export const thinkingProcessMassive: ThinkingProcessData = {
       content: "{\"is_task_done_properly\":true,\"feedback\":\"The response is appropriate and thoughtful. It addresses the patient's request by providing a haiku and invites further engagement by suggesting collaboration. The tone is gentle and empathetic, which suits a supportive interaction. Well done in balancing creativity and patient involvement.\"}"
     },
     {
+      role: "JUDGE",
+      content: "{\"is_task_done_properly\":true,\"feedback\":\"Excellent creative response that meets the therapeutic goals. The haiku demonstrates mindfulness and peace, which can be beneficial for patient wellbeing. The invitation for collaboration fosters engagement and empowerment. Consider exploring the patient's emotional response to nature imagery in future sessions.\"}"
+    },
+    {
       role: "SUPERVISOR",
       content: "The response is appropriate and fulfills the patient's request by providing a well-crafted haiku. It maintains a supportive and engaging tone, inviting the patient to participate further by co-creating a haiku, which is therapeutic and encouraging. Both judges noted the creativity and contextual appropriateness of your reply. Keep encouraging patient involvement and tailoring creative outputs to their experiences when possible."
     }

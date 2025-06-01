@@ -14,6 +14,61 @@ interface ThinkingContainerProps {
 }
 
 const ThinkingContainer = ({ data }: ThinkingContainerProps) => {
+  const mapRoleName = (role: string): string => {
+    switch (role) {
+      case "EXECUTOR":
+        return "THERAPIST";
+      case "JUDGE":
+        return "JURY";
+      case "SUPERVISOR":
+        return "JUDGE";
+      default:
+        return role;
+    }
+  };
+
+  const parseStepContent = (content: string) => {
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed.respond_to_patient) {
+        return parsed.respond_to_patient;
+      } else if (parsed.feedback) {
+        return parsed.feedback;
+      } else if (parsed.is_task_done_properly !== undefined) {
+        return `Task completed: ${parsed.is_task_done_properly ? 'Yes' : 'No'}${parsed.feedback ? ` - ${parsed.feedback}` : ''}`;
+      } else {
+        return JSON.stringify(parsed, null, 2);
+      }
+    } catch (e) {
+      return content;
+    }
+  };
+
+  const groupSteps = (steps: ThinkingStep[]) => {
+    const groups: Array<{type: 'single', step: ThinkingStep} | {type: 'jury', steps: ThinkingStep[]}> = [];
+    let currentJuryGroup: ThinkingStep[] = [];
+    
+    for (const step of steps) {
+      if (step.role === "JUDGE") {
+        currentJuryGroup.push(step);
+      } else {
+        if (currentJuryGroup.length > 0) {
+          groups.push({type: 'jury', steps: currentJuryGroup});
+          currentJuryGroup = [];
+        }
+        groups.push({type: 'single', step});
+      }
+    }
+    
+    if (currentJuryGroup.length > 0) {
+      groups.push({type: 'jury', steps: currentJuryGroup});
+    }
+    
+    return groups;
+  };
+
+  const groupedSteps = groupSteps(data.steps);
+
   return (
     <div className={styles.thinkingContainer}>
       <div className={styles.thinkingHeader}>
@@ -23,32 +78,35 @@ const ThinkingContainer = ({ data }: ThinkingContainerProps) => {
       <hr className={styles.divider} />
       
       <div className={styles.thinkingSteps}>
-        {data.steps.length > 0 ? (
-          data.steps.map((step, index) => (
-            <div key={index} className={styles.thinkingItem}>
-              <div className={styles.roleLabel}>{step.role}:</div>
-              <div className={styles.stepContent}>
-                {(() => {
-                  try {
-                    // Try to parse content as JSON and extract meaningful text
-                    const parsed = JSON.parse(step.content);
-                    if (parsed.respond_to_patient) {
-                      return parsed.respond_to_patient;
-                    } else if (parsed.feedback) {
-                      return parsed.feedback;
-                    } else if (parsed.is_task_done_properly !== undefined) {
-                      return `Task completed: ${parsed.is_task_done_properly ? 'Yes' : 'No'}${parsed.feedback ? ` - ${parsed.feedback}` : ''}`;
-                    } else {
-                      return JSON.stringify(parsed, null, 2);
-                    }
-                  } catch (e) {
-                    // If not JSON, return as is
-                    return step.content;
-                  }
-                })()}
-              </div>
-            </div>
-          ))
+        {groupedSteps.length > 0 ? (
+          groupedSteps.map((group, index) => {
+            if (group.type === 'single') {
+              return (
+                <div key={index} className={styles.thinkingItem}>
+                  <div className={styles.roleLabel}>{mapRoleName(group.step.role)}:</div>
+                  <div className={styles.stepContent}>
+                    {parseStepContent(group.step.content)}
+                  </div>
+                </div>
+              );
+            } else {
+              return (
+                <div key={index} className={styles.juryContainer}>
+                  <div className={styles.roleLabel}>JURY:</div>
+                  <div className={styles.juryColumns}>
+                    {group.steps.map((step, juryIndex) => (
+                      <div key={juryIndex} className={styles.juryColumn}>
+                        <div className={styles.juryMemberHeader}>Member {juryIndex + 1}</div>
+                        <div className={styles.stepContent}>
+                          {parseStepContent(step.content)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+          })
         ) : (
           <div className={styles.emptyState}>
             No thinking process available yet...
